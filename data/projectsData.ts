@@ -1,19 +1,9 @@
 const projectsData = [
   {
-    title: 'A Search Engine',
-    description: `What if you could look up any information in the world? Webpages, images, videos
-    and more. Google has many features to help you find exactly what you're looking
-    for.`,
-    imgSrc: '/static/images/google.png',
-    href: 'https://www.google.com',
-  },
-  {
-    title: 'The Time Machine',
-    description: `Imagine being able to travel back in time or to the future. Simple turn the knob
-    to the desired date and press "Go". No more worrying about lost keys or
-    forgotten headphones with this simple yet affordable solution.`,
-    imgSrc: '/static/images/time-machine.jpg',
-    href: '/blog/the-time-machine',
+    title: 'Cardus App',
+    description: `Cardus is a web app that allows users to create and manage their own warehouse of items. Users can add items to their warehouse, and easily identify what box is storing what item. Users can also share their warehouse or box with other users, allowing them to collaborate together.`,
+    imgSrc: '/static/images/cardus-app.png',
+    href: 'https://cardus.vercel.app/',
   },
 ]
 

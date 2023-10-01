@@ -1,0 +1,199 @@
+---
+title: How I Made a Reminder to Write a Blog Post Using GitHub Action
+date: 2023-04-23
+tags: ['github', 'github-actions', 'life-hacks', 'productivity', 'writing']
+draft: false
+summary: I have been writing blog posts for a while now. I have been using a simple workflow to remind me to write a blog post. I have been using GitHub Actions to automate this workflow. In this post, I will share how I made this workflow.
+---
+
+As a writer, I understand the importance of consistency when it comes to publishing new content. However, there are times when life gets in the way, and it can be challenging to remember to write a new blog post. To help me stay on track with my sharing schedule, I created a simple reminder using GitHub Actions. In this post, I will share how I made this workflow.
+
+## What is GitHub Action?
+
+GitHub Actions is a powerful tool that allows you to automate your workflows. You can use it to build, test, and deploy your code. You can also use it to perform a wide range of other tasks, such as sending notifications or scheduling reminders.
+
+## How I Created a Reminder to Write a Blog Post
+
+To create a reminder to write a blog post, I'm using [GitHub special repository of README.md](https://github.com/ImBIOS/ImBIOS) and added a file named .github/workflows/blog-posts.yml. In this file, I defined the workflow that GitHub Actions would execute. Here's the initial content of the file:
+
+```yml
+name: Blog Posts
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Run at 00:00 every Sunday
+  workflow_dispatch:
+
+jobs:
+  update-posts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update post list
+        run: |
+          sleep 1m
+          curl -LO https://blog.imam.dev/feed.xml
+          node src/list-posts.js
+          rm feed.xml
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A
+          git diff-index --quiet HEAD || git commit -m "Update blog posts"
+      - name: Pull changes
+        run: git pull -r
+      - name: Push changes
+        uses: ad-m/github-push-action@0fafdd62b84042d49ec0cb92d9cac7f7ce4ec79e
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+This workflow is triggered every Sunday at 00:00. It then runs a script that updates the list of blog posts. The script is written in JavaScript and parses the RSS feed of my blog. It then generates a list of blog posts and updates the README.md file. Finally, it commits the changes and pushes them to GitHub. I'm using ouuan's repository as a reference for this workflow.
+
+Where is the reminder came from? It's actually in the list-posts.js file. I added a reminder to the list of blog posts. Here's the content of the file:
+
+```js
+const { readFileSync, writeFileSync } = require('fs')
+
+/**
+ * Convert XML string to JSON
+ * @param {string} xmlString
+ * @returns {object} json
+ */
+const xmlToJson = (xmlString) => {
+  const regex = /<(\w+)([^>]*)>([\s\S]*?)<\/\1>/gm
+  const matches = xmlString.matchAll(regex)
+  const json = {}
+
+  for (const match of matches) {
+    const [, key, attributes, value] = match
+    const subMatches = value.matchAll(regex)
+    const subJson = {}
+
+    for (const subMatch of subMatches) {
+      const [, subKey, subAttributes, subValue] = subMatch
+
+      if (subValue.match(regex)) {
+        if (Array.isArray(subJson[subKey])) {
+          subJson[subKey].push(
+            xmlToJson(`<${subKey}${subAttributes}>${subValue}</${subKey}>`)[subKey]
+          )
+        } else if (subJson[subKey]) {
+          subJson[subKey] = [
+            subJson[subKey],
+            xmlToJson(`<${subKey}${subAttributes}>${subValue}</${subKey}>`)[subKey],
+          ]
+        } else {
+          subJson[subKey] = xmlToJson(`<${subKey}${subAttributes}>${subValue}</${subKey}>`)[subKey]
+        }
+      } else if (Array.isArray(subJson[subKey])) {
+        subJson[subKey].push(subValue)
+      } else if (subJson[subKey]) {
+        subJson[subKey] = [subJson[subKey], subValue]
+      } else {
+        subJson[subKey] = subValue
+      }
+    }
+
+    if (json[key]) {
+      if (Array.isArray(json[key])) {
+        json[key].push(subJson)
+      } else {
+        json[key] = [json[key], subJson]
+      }
+    } else {
+      json[key] = subJson
+    }
+  }
+
+  return json
+}
+
+/**
+ * Sort JSON by pubDate
+ * @param {object} json
+ * @returns {object} sortedJson
+ */
+const sortJson = (json) => {
+  json.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
+  return json
+}
+
+// Read XML file and convert to JSON
+const xmlString = readFileSync('feed.xml', 'utf8')
+const feeds = sortJson(xmlToJson(xmlString).rss.channel.item)
+
+// Create Markdown list of posts
+const posts = feeds
+  .slice(0, 5)
+  .map(
+    (item) =>
+      `- ${new Date(item.pubDate).toISOString().split('T')[0]} [${item.title}](${
+        item.link
+      }?utm_source=GitHubProfile)`
+  )
+
+// Update README.md if posts have changed,
+// Otherwise throw an error to remind me to write a blog post
+const readme = readFileSync('README.md', 'utf8')
+if (readme.includes(posts.join('\n'))) {
+  throw new Error('No new blog posts')
+} else {
+  const updatedReadme = readFileSync('README.md', 'utf8').replace(
+    /(?<=<!--START_SECTION:blog-posts-->\n)[\s\S]*(?=\n<!--END_SECTION:blog-posts-->)/,
+    posts.join('\n')
+  )
+  writeFileSync('README.md', updatedReadme)
+
+  console.log('Updated README.md')
+}
+```
+
+The script reads the RSS feed of my blog and generates a list of blog posts. It then updates the README.md file with the list of blog posts. If there are no new blog posts, it throws an error to remind me to write a blog post.
+
+It's just an error that will be thrown when the script is executed while the posts are still the same and it's not a reminder that will be sent to my email or something more visible to me. So, I decided to enable the notification for any failed workflow runs. Here's how to do it:
+
+1. Click on the top right corner of the page and select **Settings**.
+2. Select **Notifications** on the left sidebar.
+3. Click on **Actions**.
+4. Select **Send notifications for failed workflows only**.
+
+Now, I will get a notification when the script is executed and there are no new blog posts. I can also see the notification on the GitHub website.
+
+## Another Way That I Explored
+
+The previous workflow that I tell you about is a modified version so my README.md is always up to date. I also explored another way to create a reminder to write a blog post. But, it's a pure reminder without any README.md update mechanism, just a reminder.
+
+To create a reminder to write a blog post, I created a new GitHub repository and added a file named `.github/workflows/remind.yml`. In this file, I defined the workflow that GitHub Actions would execute. Here's the content of the file:
+
+```yml
+name: Reminder to write a blog post
+
+on:
+  schedule:
+    - cron: '0 10 * * 1-5'
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send a reminder
+        uses: dawidd6/action-send-mail@v3.1.0
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: 'Reminder to write a new blog post'
+          body: "Don't forget to write a new blog post today!"
+          to: my-email@example.com
+```
+
+This workflow sends me an email reminder every weekday at 10:00 AM, reminding me to write a new blog post. I used a third-party action, dawidd6/action-send-mail, to send the email. I provided my email credentials as GitHub secrets, so they are not visible in the workflow file.
+
+## Conclusion
+
+I have explored two ways to create a reminder to write a blog post. The first way is to update the README.md file of my GitHub profile. The second way is to send an email reminder. I'm currently using the first way because it's more visible than the second way. I can see the reminder every time I visit my GitHub profile.
+
+Creating a reminder to write a blog post using GitHub Actions is a simple and effective way to stay on track with your blogging schedule. With this workflow in place, you'll never forget to write a new post again. If you're interested in creating your reminder workflow, be sure to check out the GitHub Actions documentation to learn more. Happy blogging!

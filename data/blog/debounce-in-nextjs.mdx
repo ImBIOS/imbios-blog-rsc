@@ -1,0 +1,90 @@
+---
+title: Debounce in Next.js
+date: '2022-11-17'
+tags: ['nextjs', 'react', 'javascript', 'typescript', 'debounce']
+draft: false
+summary: Cheap way to handle expensive operations in Next.js
+---
+
+React v16.8 introduced a new hook called `useEffect,` which allows you to run side effects in your functional components. useEffect is a great way to handle expensive operations like API calls, but it can take some work. In this post, I'll show you how to use `useEffect` to debounce expensive procedures in Next.js.
+
+## What is debouncing?
+
+Debouncing is a technique for controlling the rate at which a function is called. It's useful when you have an expensive operation that you want to run only when the user has stopped typing, for example. In this case, you can debounce the API call so that it's only made when the user has stopped typing for a certain amount of time.
+
+## useEffect
+
+`useEffect` is a hook that allows you to run side effects in your functional components. It's similar to `componentDidMount` and `componentDidUpdate` in class components. The first argument is a function called when the component mounts or updates. The second argument is an array of dependencies. If the dependencies change, the procedure will be called again. If the array is empty, the function will only be called when the component mounts.
+
+```jsx
+import React, { useEffect } from 'react'
+
+const MyComponent = () => {
+  useEffect(() => {
+    console.log('This will be called when the component mounts')
+  }, [])
+
+  useEffect(() => {
+    console.log('This will be called when the component mounts and when the dependencies change')
+  }, [dependency1, dependency2])
+
+  return <div>Hello world</div>
+}
+```
+
+## How to debounce in Next.js
+
+The first thing you need to do is create a custom hook that will handle the debouncing. Here's a simple example:
+
+```js
+import { useState, useEffect } from 'react'
+
+export default function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value)
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value)
+    }, delay)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [value, delay])
+
+  return debouncedValue
+}
+```
+
+This hook takes two arguments: the value to debounce and the delay in milliseconds. It returns the debounced value. The hook uses `useEffect` to set a timeout that will update the debounced value after the specified delay. It also produces a cleanup function that clarifies the timeout if the value or uncertainty changes.
+
+Now that we have a hook that can debounce values, we can use it to debounce API calls. Here's an example:
+
+```js
+import useDebounce from './useDebounce'
+
+export default function Search() {
+  const [search, setSearch] = useState('')
+  const debouncedSearch = useDebounce(search, 500)
+
+  useEffect(() => {
+    if (debouncedSearch) {
+      fetch(`/api/search?q=${debouncedSearch}`)
+    }
+  }, [debouncedSearch])
+
+  return <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} />
+}
+```
+
+This component will make an API call to `/api/search` whenever the user stops typing for 500 milliseconds. The debounce will make the API call with the input field's value as the query string.
+
+## Performance
+
+Debouncing is a cheap way to handle expensive operations in Next.js. It's cheaper than using a library like `lodash.debounce` because it doesn't require any extra dependencies. It's also more affordable than using a library like `react-throttle` because it doesn't require any additional code to be bundled.
+
+## Conclusion
+
+Debouncing is a valuable technique for controlling the rate at which a function is called. It's handy when you have an expensive operation that you want to run only when the user has stopped typing. In this post, I showed you how to use `useEffect` to debounce expensive operations in Next.js.
+
+If you enjoyed this post, you might also like [JavaScript Hashmap, Performant and Simple](https://blog.imam.dev/post/javascript-hashmap).

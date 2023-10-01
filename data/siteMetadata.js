@@ -1,23 +1,30 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
-  title: 'Next.js Starter Blog',
-  author: 'Tails Azimuth',
-  headerTitle: 'TailwindBlog',
-  description: 'A blog created with Next.js and Tailwind.css',
+  title: 'Imam Dev Blog',
+  author: 'Imamuzzaki Abu Salam',
+  headerTitle: 'Imam Dev Blog',
+  description: 'A blog by Imam Dev',
   language: 'en-us',
   theme: 'system', // system, dark or light
-  siteUrl: 'https://tailwind-nextjs-starter-blog.vercel.app',
-  siteRepo: 'https://github.com/timlrx/tailwind-nextjs-starter-blog',
+  siteUrl: 'https://blog.imam.dev',
+  siteRepo: 'https://github.com/ImBIOS/imbios-blog',
   siteLogo: '/static/images/logo.png',
+  image: '/static/images/avatar.png',
   socialBanner: '/static/images/twitter-card.png',
-  mastodon: 'https://mastodon.social/@mastodonuser',
-  email: 'address@yoursite.com',
-  github: 'https://github.com',
-  twitter: 'https://twitter.com/Twitter',
-  facebook: 'https://facebook.com',
-  youtube: 'https://youtube.com',
-  linkedin: 'https://www.linkedin.com',
+  email: 'hi@imam.dev',
+  github: 'https://github.com/ImBIOS',
+  twitter: 'https://twitter.com/imamdev_',
+  facebook: 'https://facebook.com/ImamDevEn',
+  youtube: 'https://www.youtube.com/channel/UCHFKcUMHr10TSLXMa2fGhdQ',
+  linkedin: 'https://www.linkedin.com/in/imamuzzaki-abu-salam/',
   locale: 'en-US',
+  newsletter: {
+    // supports mailchimp, buttondown, convertkit, klaviyo, revue
+    // Please add your .env file and modify it according to your selection
+    provider: 'buttondown',
+  },
+
+  mastodon: 'https://mastodon.social/@mastodonuser',
   analytics: {
     // If you want to use an analytics provider you have to add it to the
     // content security policy in the `next.config.js` file.
@@ -36,11 +43,6 @@ const siteMetadata = {
     // googleAnalytics: {
     //   googleAnalyticsId: '', // e.g. G-XXXXXXX
     // },
-  },
-  newsletter: {
-    // supports mailchimp, buttondown, convertkit, klaviyo, revue, emailoctopus
-    // Please add your .env file and modify it according to your selection
-    provider: 'buttondown',
   },
   comments: {
     // If you want to use an analytics provider you have to add it to the
@@ -61,15 +63,17 @@ const siteMetadata = {
       metadata: '0',
       // theme example: light, dark, dark_dimmed, dark_high_contrast
       // transparent_dark, preferred_color_scheme, custom
-      theme: 'light',
+      theme: 'preferred_color_scheme',
+      // Place the comment box above the comments. options: bottom, top
+      inputPosition: 'top',
+      // Choose the language giscus will be displayed in. options: en, es, zh-CN, zh-TW, ko, ja etc
+      lang: 'en',
       // theme when dark mode
       darkTheme: 'transparent_dark',
       // If the theme option above is set to 'custom`
       // please provide a link below to your custom theme css file.
       // example: https://giscus.app/themes/custom_example.css
       themeURL: '',
-      // This corresponds to the `data-lang="en"` in giscus's configurations
-      lang: 'en',
     },
   },
   search: {

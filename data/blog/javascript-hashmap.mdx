@@ -1,0 +1,107 @@
+---
+title: JavaScript Hashmap, Performant and Simple
+date: '2022-11-15'
+tags: ['frontend', 'javascript', 'hashmap', 'data structure', 'web development']
+draft: false
+summary: Key-value pair variable in JavaScript
+---
+
+**Why Hashmap?** Well, we all know that another programming language has something called **Hashtable**. It is a data structure that stores key-value pairs that are so great because of their O(1) constant time lookup. It is an advantageous data structure we can use to store data. In JavaScript, we don't have a built-in data structure like Hashtable. But we can use an object to store key-value pairs. It is called a Map in JavaScript.
+
+## What is a Map?
+
+A Map is a collection of elements where each element is stored as a Key, Value pair. A Map's keys and values can be any value (both objects and primitive values). A Map object iterates its elements in insertion order — a for...of loop returns an array of [key, value] for each iteration.
+
+A Map holds key-value pairs where the keys can be any datatype. A Map has a property that represents the size of the Map. A Map remembers the original insertion order of the keys.
+
+## Map Methods & Property
+
+| Method    | Description                                                        |
+| --------- | ------------------------------------------------------------------ |
+| new Map() | Creates a new Map object                                           |
+| set()     | Sets the value for a key in a Map                                  |
+| get()     | Returns the value for a key                                        |
+| has()     | Returns a boolean indicating if a key exists in a Map              |
+| delete()  | Removes a key from a Map                                           |
+| clear()   | Removes all keys from a Map                                        |
+| values()  | Returns an iterator object of the values in a Map                  |
+| keys()    | Returns an iterator object of the keys in a Map                    |
+| entries() | Returns an iterator object of the key-value pairs in a Map         |
+| forEach() | Executes a provided function once for each key-value pair in a Map |
+
+| Property | Description                                    |
+| -------- | ---------------------------------------------- |
+| size     | Returns the number of key/value pairs in a Map |
+
+## Map Example
+
+```javascript
+const map = new Map()
+map.set('name', 'John')
+map.set('age', 30)
+map.set('isMarried', true)
+map.set('address', { city: 'New York', state: 'NY' })
+map.set('hobbies', ['reading', 'writing', 'coding'])
+
+console.log(map.get('name')) // John
+console.log(map.get('age')) // 30
+console.log(map.get('isMarried')) // true
+console.log(map.get('address')) // {city: 'New York', state: 'NY'}
+console.log(map.get('hobbies')) // ['reading', 'writing', 'coding']
+
+console.log(map.size) // 5
+```
+
+## Map Iteration
+
+```javascript
+const map = new Map()
+map.set('name', 'John')
+map.set('age', 30)
+map.set('isMarried', true)
+map.set('address', { city: 'New York', state: 'NY' })
+map.set('hobbies', ['reading', 'writing', 'coding'])
+
+// Iterate keys
+for (const key of map.keys()) {
+  console.log(key)
+}
+
+// Iterate values
+for (const value of map.values()) {
+  console.log(value)
+}
+
+// Iterate key-value pairs
+for (const [key, value] of map.entries()) {
+  console.log(key, value)
+}
+
+// Iterate key-value pairs
+map.forEach((value, key) => {
+  console.log(key, value)
+})
+```
+
+## Map vs. Object
+
+| Map                                                                                                                        | Object                                                    |
+| -------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Map is a collection of keyed data items, just like an Object. But the main difference is that Map allows keys of any type. | Object keys must be either a string or a symbol.          |
+| Map is iterable and can be easily looped over.                                                                             | Object is not iterable and can not be easily looped over. |
+| Map has a built-in forEach method, so there is no need to convert it to an array.                                          | Object does not have a built-in forEach method.           |
+| Map has a size property, so we can easily get the number of items.                                                         | Object does not have a size property.                     |
+| Map can use objects as keys.                                                                                               | Object can not use objects as keys.                       |
+| Map is faster than Object in general.                                                                                      | Object is generally slower than Map.                      |
+
+## Conclusion
+
+In this article, we have learned about Map in JavaScript. We have learned about the Map methods and properties. We have also known about the difference between Map and Object. I hope you have enjoyed this article. If you have any questions, please leave a comment below. Thank you for reading.
+
+## References
+
+[https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)
+
+[https://www.freecodecamp.org/news/what-is-a-javascript-map-what-are-the-differences-between-map-and-object-in-javascript/](https://www.freecodecamp.org/news/what-is-a-javascript-map-what-are-the-differences-between-map-and-object-in-javascript/)
+
+[https://www.geeksforgeeks.org/map-vs-object-javascript/](https://www.geeksforgeeks.org/map-vs-object-javascript/)

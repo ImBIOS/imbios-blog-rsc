@@ -1,0 +1,794 @@
+---
+title: Hello React, Goodbye useEffect (I Hope)
+date: '2022-12-20'
+tags: ['frontend', 'javascript', 'web development', 'react']
+draft: false
+summary: useEffect has been used so much that it has become a crutch for many developers.
+---
+
+In this article, I will show you how to use React to replace useEffect in most cases.
+
+I've been watching ["Goodbye, useEffect" by David Khoursid](https://www.youtube.com/watch?v=bGzanfKVFeU), and it's 🤯 blows my mind in a 😀 good way. I agree that useEffect has been used so much that it makes our code dirty and hard to maintain. I've been using useEffect for a long time, and I'm guilty of misusing it. I'm sure React has features that will make my code cleaner and easier to maintain.
+
+## What is useEffect?
+
+useEffect is a hook that allows us to perform side effects in function components. It combines componentDidMount, componentDidUpdate, and componentWillUnmount in a single API. It's a compelling hook that will enable us to do many things. But it's also a very dangerous hook that can cause a lot of bugs.
+
+## Why useEffect is dangerous?
+
+Let's take a look at the following example:
+
+```jsx
+import React, { useEffect } from 'react'
+
+const Counter = () => {
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCount((c) => c + 1)
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  return <div>{count}</div>
+}
+```
+
+It's a simple counter that increases every second. It uses useEffect to set an interval. It also uses useEffect to clear the interval when the component unmounts. The code snippet above is a widespread use case for useEffect. It's a straightforward example, but it's also a terrible example.
+
+The problem with this example is that the interval is set every time the component re-renders. If the component re-renders for any reason, the interval will be set again. The interval will be called twice per second. It's not a problem with this simple example, but it can be a big problem when the interval is more complex. It can also cause memory leaks.
+
+**How to fix it?**
+
+There are many ways to fix this problem. One way is to use useRef to store the interval.
+
+```jsx
+import React, { useEffect, useRef } from 'react'
+
+const Counter = () => {
+  const [count, setCount] = useState(0)
+  const intervalRef = useRef()
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setCount((c) => c + 1)
+    }, 1000)
+    return () => clearInterval(intervalRef.current)
+  }, [])
+
+  return <div>{count}</div>
+}
+```
+
+The above code is a lot better than the previous example. It doesn't set the interval every time the component re-renders. But it still needs improvement. It's still a bit complicated. And it still uses useEffect, which is a very dangerous hook.
+
+## useEffect is not for effects
+
+As we know about useEffect, it combines componentDidMount, componentDidUpdate, and componentWillUnmount in a single API. Let's give some examples of it:
+
+```jsx
+useEffect(() => {
+  // componentDidMount?
+}, [])
+```
+
+```jsx
+useEffect(() => {
+  // componentDidUpdate?
+}, [something, anotherThing])
+```
+
+```jsx
+useEffect(() => {
+  return () => {
+    // componentWillUnmount?
+  }
+}, [])
+```
+
+It's effortless to understand. useEffect is used to perform side effects when the component mounts, updates, and unmounts. But it's not only used to perform side effects. It's also used to perform side effects when the component re-renders. It's not a good idea to perform side effects when the component re-renders. It can cause a lot of bugs. It's better to use other hooks to perform side effects when the component re-renders.
+
+> useEffect is not a lifecycle hook.
+
+<blockquote className="twitter-tweet">
+  <p lang="en" dir="ltr">
+    I will never comprehend why the *default* behavior of useEffect is an infinite loop
+  </p>
+  &mdash; Tomasz Łakomy 🇺🇦 (@tlakomy) <a href="https://twitter.com/tlakomy/status/1501574622839463936?ref_src=twsrc%5Etfw">March 9, 2022</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charSet="utf-8" />
+
+```jsx
+import React, { useState, useEffect } from 'react'
+
+const Example = () => {
+  const [value, setValue] = useState('')
+  const [count, setCount] = useState(-1)
+
+  useEffect(() => {
+    setCount(count + 1)
+  })
+
+  const onChange = ({ target }) => setValue(target.value)
+
+  return (
+    <div>
+      <input type="text" value={value} onChange={onChange} />
+      <div>Number of changes: {count}</div>
+    </div>
+  )
+}
+```
+
+<video
+  playsInline
+  autoPlay
+  loop
+  poster="https://media.slid.es/videos/174419/okrq2BIZ/cleanshot_2022-04-30_at_11_thumb_00001.jpg"
+  src="https://media.slid.es/videos/174419/okrq2BIZ/cleanshot_2022-04-30_at_11.mp4"
+/>
+
+> useEffect is not a state setter
+
+```jsx
+import React, { useState, useEffect } from 'react'
+
+const Example = () => {
+  const [count, setCount] = useState(0)
+
+  // Similar to componentDidMount and componentDidUpdate:
+  useEffect(() => {
+    // Update the document title using the browser API
+    document.title = `You clicked ${count} times`
+  }) // <-- this is the problem, 😱 it's missing the dependency array
+
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>Click me</button>
+    </div>
+  )
+}
+```
+
+I recommend reading this documentation: [https://reactjs.org/docs/hooks-effect.html#tip-optimizing-performance-by-skipping-effects](https://reactjs.org/docs/hooks-effect.html#tip-optimizing-performance-by-skipping-effects)
+
+**Imperative vs Declarative**
+
+**Imperative**: When something happens, execute this effect.
+
+**Declarative**: When something happens, it will cause the state to change and depending (dependency array) on which parts of the state changed, this effect should be executed, but only if some condition is true. And React may execute it again for ~~no reason~~ concurrent rendering.
+
+**Concept vs Implementation**
+
+**Concept**:
+
+```jsx
+useEffect(() => {
+  doSomething()
+
+  return () => cleanup()
+}, [whenThisChanges])
+```
+
+**Implementation**:
+
+```jsx
+useEffect(() => {
+  if (foo && bar && (baz || quo)) {
+    doSomething()
+  } else {
+    doSomethingElse()
+  }
+
+  // oops, I forgot the cleanup
+}, [foo, bar, baz, quo])
+```
+
+**Real-world implementation**:
+
+```jsx
+useEffect(() => {
+  if (isOpen && component && containerElRef.current) {
+    if (React.isValidElement(component)) {
+      ionContext.addOverlay(overlayId, component, containerElRef.current!);
+    } else {
+      const element = createElement(component as React.ComponentClass, componentProps);
+      ionContext.addOverlay(overlayId, element, containerElRef.current!);
+    }
+  }
+}, [component, containerElRef.current, isOpen, componentProps]);
+```
+
+```jsx
+useEffect(() => {
+  if (removingValue && !hasValue && cssDisplayFlex) {
+    setCssDisplayFlex(false)
+  }
+  setRemovingValue(false)
+}, [removingValue, hasValue, cssDisplayFlex])
+```
+
+It's scary to write this code. Furthermore, it will be normal in our codebase and messed up. 😱🤮
+
+## Where do effects go?
+
+React 18 runs effects twice on the mount (in strict mode). Mount/effect (╯°□°)╯︵ ┻━┻ -> Unmount (simulated)/cleanup ┬─┬ /( º \_ º /) -> Remount/effect (╯°□°)╯︵ ┻━┻
+
+Should it be placed outside of the component? The default useEffect? Uh... awkward. Hmm... 🤔 We couldn't put it in render since it should be no side-effects there because render is just like the right-hand of a math equation. It should be only the result of the calculation.
+
+### What is useEffect for?
+
+**Synchronization**
+
+```jsx
+useEffect(() => {
+  const sub = createThing(input).subscribe((value) => {
+    // do something with value
+  })
+
+  return sub.unsubscribe
+}, [input])
+```
+
+<blockquote className="twitter-tweet">
+  <p lang="en" dir="ltr">
+    one way to think about it is that useEffect is a way to synchronize React with some external
+    system (network, subscription, DOM). if you don't have any external system and just try to
+    manage your data flow with useEffect, you're gonna have all these problems.
+  </p>
+  &mdash; дэн (@dan_abramov) <a href="https://twitter.com/dan_abramov/status/1501737272999301121?ref_src=twsrc%5Etfw">March 10, 2022</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charSet="utf-8" />
+
+```jsx
+useEffect(() => {
+  const handler = (event) => {
+    setPointer({ x: event.clientX, y: event.clientY })
+  }
+
+  elRef.current.addEventListener('pointermove', handler)
+
+  return () => {
+    elRef.current.removeEventListener('pointermove', handler)
+  }
+}, [])
+```
+
+### Action effects vs Activity effects
+
+```
+ Fire-and-forget            Synchronized
+ (Action effects)        (Activity effects)
+
+        0              ----------------------       ----------------- - - -
+        o              o   |     A   |      o       o     | A   |   A
+        o              o   |     |   |      o       o     | |   |   |
+        o              o   |     |   |      o       o     | |   |   |
+        o              o   |     |   |      o       o     | |   |   |
+        o              o   |     |   |      o       o     | |   |   |
+        o              o   |     |   |      o       o     | |   |   |
+        o              o   V     |   V      o       o     V |   V   |
+o-------------------------------------------------------------------------------->
+                                       Unmount      Remount
+```
+
+### Where do action effects go?
+
+**Event handlers.** Sorta.
+
+```jsx
+<form
+  onSubmit={(event) => {
+    // 💥 side-effect!
+    submitData(event)
+  }}
+>
+  {/* ... */}
+</form>
+```
+
+There is excellent information in Beta React.js. I recommend reading it. Especially the ["Can event handlers have side effects?" part](https://beta.reactjs.org/learn/responding-to-events#can-event-handlers-have-side-effects).
+
+> Absolutely! <u>Event handlers are the best place for side effects.</u>
+
+Another great resource I want to mention is [Where you _can cause_ side effects](beta.reactjs.org/learn/keeping-components-pure#where-you-can-cause-side-effects)
+
+> In React, <u>side effects usually belong inside event handlers.</u>
+
+> If you've exhausted all other options and can't find the right event handler for your side effect, you can still attach it to your returned JSX with a <u>useEffect</u> call in your component. This tells React to execute it later, after rendering, when side effects are allowed. <u>**However, this approach should be your last resort.**</u>
+
+"Effects happen outside of rendering" - David Khoursid.
+
+```js
+(state) => UI
+(state, event) => nextState // 🤔 Effects?
+```
+
+UI is a function of the state. As all the current states are rendered, it will produce the current UI. Likewise, when an event happens, it will create a new state. And when the state changes, it will build a new UI. This paradigm is the core of React.
+
+### When do effects happen?
+
+~~Middleware? 🕵️ Callbacks? 🤙 Sagas? 🧙‍♂️ Reactions? 🧪 Sinks? 🚰 Monads(?) 🧙‍♂️ Whenever? 🤷‍♂️~~
+
+**State transitions. Always.**
+
+```js
+(state, event) => nextState
+          |
+          V
+(state, event) => (nextState, effect) // Here
+```
+
+![Rerender illustration image](https://media.slid.es/uploads/174419/images/9663683/CleanShot_2022-06-22_at_20.24.08_2x.png)
+
+Where do action effects go? ~~Event handlers.~~ State transitions.
+
+Which happen to be executed at the same time as **event handlers.**
+
+## We Might Not Need an Effects
+
+We could use useEffect because we don't know that there is already a built-in API from React that can solve this problem.
+
+Here is an excellent resource to read about this topic: [You Might Not Need an Effect](https://beta.reactjs.org/learn/you-might-not-need-an-effect)
+
+### We don't need useEffect for **transforming data.**
+
+useEffect ➡️ useMemo (even though we don't need useMemo in most cases)
+
+```jsx
+const Cart = () => {
+  const [items, setItems] = useState([])
+  const [total, setTotal] = useState(0)
+
+  useEffect(() => {
+    setTotal(items.reduce((total, item) => total + item.price, 0))
+  }, [items])
+
+  // ...
+}
+```
+
+Read and think about it again carefully 🧐.
+
+```jsx
+const Cart = () => {
+  const [items, setItems] = useState([])
+  const total = useMemo(() => {
+    return items.reduce((total, item) => total + item.price, 0)
+  }, [items])
+
+  // ...
+}
+```
+
+Instead of using `useEffect` to calculate the total, we can use `useMemo` to memoize the total. Even if the variable is not an expensive calculation, we don't need to use `useMemo` to memoize it because we're basically trading performance for memory.
+
+Whenever we see `setState` in `useEffect`, it's a warning sign that we can simplify it.
+
+### Effects with external stores? [useSyncExternalStore](https://reactjs.org/docs/hooks-reference.html#usesyncexternalstore)
+
+useEffect ➡️ useSyncExternalStore
+
+❌ Wrong way:
+
+```jsx
+const Store = () => {
+  const [isConnected, setIsConnected] = useState(true)
+
+  useEffect(() => {
+    const sub = storeApi.subscribe(({ status }) => {
+      setIsConnected(status === 'connected')
+    })
+
+    return () => {
+      sub.unsubscribe()
+    }
+  }, [])
+
+  // ...
+}
+```
+
+✅ Best way:
+
+```jsx
+const Store = () => {
+  const isConnected = useSyncExternalStore(
+    // 👇 subscribe
+    storeApi.subscribe,
+    // 👇 get snapshot
+    () => storeApi.getStatus() === 'connected',
+    // 👇 get server snapshot
+    true
+  )
+
+  // ...
+}
+```
+
+### We don't need useEffect for **communicating with parents.**
+
+useEffect ➡️ eventHandler
+
+❌ Wrong way:
+
+```jsx
+const ChildProduct = ({ onOpen, onClose }) => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    if (isOpen) {
+      onOpen()
+    } else {
+      onClose()
+    }
+  }, [isOpen])
+
+  return (
+    <div>
+      <button
+        onClick={() => {
+          setIsOpen(!isOpen)
+        }}
+      >
+        Toggle quick view
+      </button>
+    </div>
+  )
+}
+```
+
+📈 Better way:
+
+```jsx
+const ChildProduct = ({ onOpen, onClose }) => {
+  const [isOpen, setIsOpen] = useState(false)
+
+const handleToggle = () => {
+  const nextIsOpen = !isOpen;
+  setIsOpen(nextIsOpen)
+
+  if (nextIsOpen) {
+    onOpen()
+  } else {
+    onClose()
+  }
+}
+
+  return (
+    <div>
+      <button
+        onClick={}
+      >
+        Toggle quick view
+      </button>
+    </div>
+  )
+}
+```
+
+✅ Best way is to create a custom hook:
+
+```jsx
+const useToggle({ onOpen, onClose }) => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleToggle = () => {
+    const nextIsOpen = !isOpen
+    setIsOpen(nextIsOpen)
+
+    if (nextIsOpen) {
+      onOpen()
+    } else {
+      onClose()
+    }
+  }
+
+  return [isOpen, handleToggle]
+}
+
+const ChildProduct = ({ onOpen, onClose }) => {
+  const [isOpen, handleToggle] = useToggle({ onOpen, onClose })
+
+  return (
+    <div>
+      <button
+        onClick={handleToggle}
+      >
+        Toggle quick view
+      </button>
+    </div>
+  )
+}
+```
+
+### We don't need useEft for **initializing global singletons.**
+
+useEffect ➡️ justCallIt
+
+❌ Wrong way:
+
+```jsx
+const Store = () => {
+  useEffect(() => {
+    storeApi.authenticate() // 👈 This will run twice!
+  }, [])
+
+  // ...
+}
+```
+
+🔨 Let's fix it:
+
+```jsx
+const Store = () => {
+  const didAuthenticateRef = useRef()
+
+  useEffect(() => {
+    if (didAuthenticateRef.current) return
+
+    storeApi.authenticate()
+
+    didAuthenticateRef.current = true
+  }, [])
+
+  // ...
+}
+```
+
+➿ Another way:
+
+```jsx
+let didAuthenticate = false
+
+const Store = () => {
+  useEffect(() => {
+    if (didAuthenticate) return
+
+    storeApi.authenticate()
+
+    didAuthenticate = true
+  }, [])
+
+  // ...
+}
+```
+
+🤔 How if:
+
+```jsx
+storeApi.authenticate()
+
+const Store = () => {
+  // ...
+}
+```
+
+🍷 SSR, huh?
+
+```jsx
+if (typeof window !== 'undefined') {
+  storeApi.authenticate()
+}
+const Store = () => {
+  // ...
+}
+```
+
+🧪 Testing?
+
+```jsx
+const renderApp = () => {
+  if (typeof window !== 'undefined') {
+    storeApi.authenticate()
+  }
+
+  appRoot.render(<Store />)
+}
+```
+
+We don't necessarily need to place everything inside a component.
+
+### We don't need useEffect for **fetching data.**
+
+useEffect ➡️ renderAsYouFetch (SSR) or useSWR (CSR)
+
+❌ Wrong way:
+
+```jsx
+const Store = () => {
+  const [items, setItems] = useState([])
+
+  useEffect(() => {
+    let isCanceled = false
+
+    getItems().then((data) => {
+      if (isCanceled) return
+
+      setItems(data)
+    })
+
+    return () => {
+      isCanceled = true
+    }
+  })
+
+  // ...
+}
+```
+
+💽 Remix way:
+
+```jsx
+import { useLoaderData } from '@renix-run/react'
+import { json } from '@remix-run/node'
+import { getItems } from './storeApi'
+
+export const loader = async () => {
+  const items = await getItems()
+
+  return json(items)
+}
+
+const Store = () => {
+  const items = useLoaderData()
+
+  // ...
+}
+
+export default Store
+```
+
+⏭️🧹 Next.js (appDir) with async/await in Server Component way:
+
+```tsx
+// app/page.tsx
+async function getData() {
+  const res = await fetch('https://api.example.com/...')
+  // The return value is *not* serialized
+  // You can return Date, Map, Set, etc.
+
+  // Recommendation: handle errors
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error('Failed to fetch data')
+  }
+
+  return res.json()
+}
+
+export default async function Page() {
+  const data = await getData()
+
+  return <main></main>
+}
+```
+
+⏭️💁 Next.js (appDir) with useSWR in Client Component way:
+
+```tsx
+// app/page.tsx
+import useSWR from 'swr'
+
+export default function Page() {
+  const { data, error } = useSWR('/api/data', fetcher)
+
+  if (error) return <div>failed to load</div>
+  if (!data) return <div>loading...</div>
+
+  return <div>hello {data}!</div>
+}
+```
+
+⏭️🧹 Next.js (pagesDir) in SSR way:
+
+```tsx
+// pages/index.tsx
+import { GetServerSideProps } from 'next'
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const res = await fetch('https://api.example.com/...')
+  const data = await res.json()
+
+  return {
+    props: {
+      data,
+    },
+  }
+}
+
+export default function Page({ data }) {
+  return <div>hello {data}!</div>
+}
+```
+
+⏭️💁 Next.js (pagesDir) in CSR way:
+
+```tsx
+// pages/index.tsx
+import useSWR from 'swr'
+
+export default function Page() {
+  const { data, error } = useSWR('/api/data', fetcher)
+
+  if (error) return <div>failed to load</div>
+  if (!data) return <div>loading...</div>
+
+  return <div>hello {data}!</div>
+}
+```
+
+🍃 React Query (SSR way:
+
+```jsx
+import { getItems } from './storeApi'
+import { useQuery } from 'react-query'
+
+const Store = () => {
+  const queryClient = useQueryClient()
+
+  return (
+    <button
+      onClick={() => {
+        queryClient.prefetchQuery('items', getItems)
+      }}
+    >
+      See items
+    </button>
+  )
+}
+
+const Items = () => {
+  const { data, isLoading, isError } = useQuery('items', getItems)
+
+  // ...
+}
+```
+
+⁉️ Really ⁉️ What should we use? ~~useEffect?~~ useQuery? useSWR?
+
+or... just use() 🤔
+
+use() is a new React function that accepts a promise conceptually similar to await. use() handles the promise returned by a function in a way that is compatible with components, hooks, and Suspense. Learn more about use() in the React RFC.
+
+```jsx
+function Note({ id }) {
+  // This fetches a note asynchronously, but to the component author, it looks
+  // like a synchronous operation.
+  const note = use(fetchNote(id))
+  return (
+    <div>
+      <h1>{note.title}</h1>
+      <section>{note.body}</section>
+    </div>
+  )
+}
+```
+
+## Fetching in useEffect problems
+
+> 🏃‍♂️ Race conditions
+>
+> 🔙 No instant back button
+>
+> 🔍 No SSR or initial HTML content
+>
+> 🌊 Chasing waterfall
+>
+> - Reddit, Dan Abramov
+
+## Conclusion
+
+From fetching data to fighting with imperative APIs, side effects are one of the most significant sources of frustration in web app development. And let's be honest, putting everything in useEffect hooks only helps a little. Thankfully, there is a science (well, math) to side effects, formalized in state machines and statecharts, that can help us visually model and understand how to orchestrate effects, no matter how complex they get declaratively.
+
+## Resources
+
+- [Remix](https://remix.run/)
+- [Next.js](https://nextjs.org/)
+- [React Query](https://react-query.tanstack.com/)
+- [use](https://github.com/acdlite/rfcs/blob/first-class-promises/text/0000-first-class-support-for-promises.md#usepromise)
+- [SWR](https://swr.vercel.app/)
+- [Goodbye, useEffect - David Khourshid](https://www.youtube.com/watch?v=bGzanfKVFeU)
+- [React 18: The One with Suspense for Data Fetching](https://reactjs.org/blog/2020/12/21/data-fetching-with-react-server-components.html)

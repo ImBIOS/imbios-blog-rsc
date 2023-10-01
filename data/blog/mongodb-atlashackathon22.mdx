@@ -1,0 +1,118 @@
+---
+title: Cardus App - Open Source Personal Warehouse Management App
+date: '2022-12-7'
+tags:
+  [
+    'nextjs',
+    'mongodb',
+    'google-cloud-platform',
+    'hackathon',
+    'atlashackathon22',
+    'cloud-storage',
+    'pwa',
+    'trusted-web-activity',
+    'tensorflowjs',
+  ]
+draft: false
+summary: A web app that allows users to create and manage their warehouse of items.
+---
+
+## What I built
+
+Cardus is a web app that allows users to create and manage their warehouse of items. Users can add items to their warehouse and quickly identify what box is storing what thing. Users can also share their warehouse or container with other users, allowing them to collaborate.
+
+### App Link
+
+Web: [https://cardus-app.vercel.app/](https://cardus-app.vercel.app/)
+
+Play Store: TBD
+
+### Screenshots
+
+<div className="flex flex-wrap -mx-2 overflow-hidden xl:-mx-2">
+  <div className="my-1 px-2 w-1/2 overflow-hidden xl:my-1 xl:px-2 xl:w-1/2">
+    ![Onboarding Screen](/static/images/mongodb-atlashackathon22/onboarding.png)
+  </div>
+  <div className="my-1 px-2 w-1/2 overflow-hidden xl:my-1 xl:px-2 xl:w-1/2">
+    ![Home Screen](/static/images/mongodb-atlashackathon22/home.png)
+  </div>
+  <div className="my-1 px-2 w-1/2 overflow-hidden xl:my-1 xl:px-2 xl:w-1/2">
+    ![Box Screen](/static/images/mongodb-atlashackathon22/box.png)
+  </div>
+  <div className="my-1 px-2 w-1/2 overflow-hidden xl:my-1 xl:px-2 xl:w-1/2">
+    ![Add Item Screen](/static/images/mongodb-atlashackathon22/add-item.png)
+  </div>
+  <div className="my-1 px-2 w-1/2 overflow-hidden xl:my-1 xl:px-2 xl:w-1/2">
+    ![Add Box Screen](/static/images/mongodb-atlashackathon22/add-box.png)
+  </div>
+  <div className="my-1 px-2 w-1/2 overflow-hidden xl:my-1 xl:px-2 xl:w-1/2">
+    ![Scan Screen](/static/images/mongodb-atlashackathon22/scan.png)
+  </div>
+</div>
+
+### Description
+
+Cardus App is a web app project to challenge the boundary of web development for a mobile user. The app is built with Next.js, a React framework, and deployed on Vercel. The app is also a PWA, which We can install on mobile devices. The app also uses Trusted Web Activity, which allows the app to be installed on Android devices. The app also uses the Google Cloud Platform to store images and to run TensorFlow.js models to auto-detect objects in item images.
+
+I want the app to be seamless, like a native app. There are onboarding screens, beautiful transitions, and smooth animations. The app also has a dark mode, a must for any modern app.
+
+### Link to Source Code
+
+[Cardus App: GitHub Repository](https://github.com/ImBIOS/cardus-app)
+
+### Permissive License
+
+[Apache-2.0 license](https://github.com/ImBIOS/cardus-app/blob/master/LICENSE)
+
+## Background
+
+### ⚡ Problem
+
+- Difficult to label the storage box
+- Hard to know where is the storage box
+- Hard to know what items are in which storage
+
+It's challenging to manage personal warehouse/storage.
+
+### 💡 Solution
+
+- Create a web app that allows users to create and manage their warehouse of items
+- Users can add items to their warehouse and quickly identify what box is storing what item
+- Users can also share their warehouse or box with other users, allowing them to collaborate
+
+## How I built it
+
+### 📚 Tech Stack
+
+- Next.js
+- React
+- MongoDB
+- Google Cloud Platform
+- TensorFlow.js
+- PWA
+- Trusted Web Activity
+
+### 📖 The Process
+
+We started by creating a Next.js app, and then we made a MongoDB Atlas cluster. We wanted to communicate easily with MongoDB, so we used ORM with Prisma. Our focus is a mobile web app, so we only care about the desktop after a while. We make it a PWA, a bottom navigation bar, a top bar, and a dark mode. We are also planning to make it a Trusted Web Activity so that we can install it on Android devices.
+
+There are a lot of problems we're facing along the way. Using Google Cloud Storage API with a serverless function takes work. Just by using this, we are already facing a bunch of obstacles. Some can be solved by reading a forum; some need a workaround. Users love something clever, so we also want to make the app intelligent. We want to make the app able to detect the object in the image, so we use TensorFlow.js to do that. We also want to make the app able to scan the QR code, so we use ZXing to do that.
+
+### 📝 What I learned
+
+- How to use Next.js to build a web app
+- How to use MongoDB Atlas to store data
+- How to use Google Cloud Platform to store images
+- How to use TensorFlow.js to run models in the browser
+- How to use PWA to make the app installable
+- How to use Trusted Web Activity to make the app installable on Android devices
+
+## Additional Resources/Info
+
+- [Next.js](https://nextjs.org/)
+- [React](https://reactjs.org/)
+- [MongoDB](https://www.mongodb.com/)
+- [Google Cloud Platform](https://cloud.google.com/)
+- [TensorFlow.js](https://www.tensorflow.org/js)
+- [PWA](https://web.dev/progressive-web-apps/)
+- [Trusted Web Activity](https://developers.google.com/web/android/trusted-web-activity)

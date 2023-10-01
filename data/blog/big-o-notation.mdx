@@ -1,0 +1,488 @@
+---
+title: Big O Notation in JavaScript
+date: '2022-11-21'
+tags: [algorithms, big-o, data-structures, javascript]
+draft: false
+summary: A quick overview of Big O Notation in JavaScript
+---
+
+Big O Notation, collectively called Bachmann-Landau notation or asymptotic notation, is a way to describe the performance of an algorithm. It is used to describe the worst-case scenario of an algorithm. It is used to compare the performance of different algorithms. It describes the implementation of an algorithm in terms of the input size.
+
+Big O notation characterizes functions according to their growth rates: tasks with the same growth rate are considered to be of the same order. It is a mathematical notation that describes the limiting behavior of a function when the argument tends towards a particular value or infinity. It is used to classify algorithms according to how their run time or space requirements grow as the input size grows. The letter O is used because the growth rate of a function is also called its order.
+
+# Iteration
+
+## For loop
+
+```js
+for (let i = 0; i < n; i++) {
+  console.log(i)
+}
+```
+
+The above code will run n times. The time complexity of this code is O(n) and the space complexity is O(1).
+
+## While loop
+
+```js
+let i = 0
+while (i < n) {
+  console.log(i)
+  i++
+}
+```
+
+The above code will run n times. The time complexity of this code is O(n) and the space complexity is O(1).
+
+## Do while loop
+
+```js
+let i = 0
+do {
+  console.log(i)
+  i++
+} while (i < n)
+```
+
+The above code will run n times. The time complexity of this code is O(n).
+
+## Fibonacci (Iterative)
+
+```js
+function fibonacci(n) {
+  let arr = [0, 1]
+  for (let i = 2; i <= n; i++) {
+    arr.push(arr[i - 2] + arr[i - 1])
+  }
+  return arr[n]
+}
+```
+
+The above code will run n times. The time complexity of this code is O(n) and the space complexity is O(n). This is the **second best** fibonacci in terms of performance benchmark. The **best** one is using behold binet's formula, and even better when we precalculate the formula first.
+
+# Recursion
+
+## Factorial
+
+```js
+function factorial(n) {
+  if (n === 0) {
+    return 1
+  }
+  return n * factorial(n - 1)
+}
+```
+
+The above code will run n times. The time complexity of this code is O(n) and the space complexity is O(n).
+
+## Fibonacci (Recursive)
+
+```js
+function fibonacci(n) {
+  if (n < 2) return n
+
+  return fibonacci(n - 1) + fibonacci(n - 2)
+}
+```
+
+The above code will run n times. The time complexity of this code is O(2^n) and the space complexity is O(n). This things is called exponential time complexity. This is the **worst** fibonacci in terms of performance benchmark.
+
+## Fibonacci (Recursive with Memoization)
+
+```js
+function fibonacci(n, cache = []) {
+  if (n === 0) return 0
+  if (n === 1) return 1
+  if (cache[n]) return cache[n]
+
+  cache[n] = fibonacci(n - 2, cache) + fibonacci(n - 1, cache)
+  return cache[n]
+}
+```
+
+The above code will run n times. The time complexity of this code is O(n) and the space complexity is O(n). This is the **second worst** fibonacci in terms of performance benchmark, but a bunch a lot better than without memoization.
+
+# Searching
+
+## Linear search
+
+```js
+function linearSearch(arr, value) {
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] === value) {
+      return i
+    }
+  }
+  return -1
+}
+```
+
+The above code will run n times. The time complexity of this code is O(n).
+
+## Binary search
+
+```js
+function binarySearch(arr, value) {
+  let start = 0
+  let end = arr.length - 1
+  let middle = Math.floor((start + end) / 2)
+  while (arr[middle] !== value && start <= end) {
+    if (value < arr[middle]) {
+      end = middle - 1
+    } else {
+      start = middle + 1
+    }
+    middle = Math.floor((start + end) / 2)
+  }
+  if (arr[middle] === value) {
+    return middle
+  }
+  return -1
+}
+```
+
+The above code will run log(n) times. The time complexity of this code is O(log(n)).
+
+# Sorting
+
+## Bubble sort
+
+```js
+function bubbleSort(arr) {
+  for (let i = arr.length; i > 0; i--) {
+    for (let j = 0; j < i - 1; j++) {
+      if (arr[j] > arr[j + 1]) {
+        let temp = arr[j]
+        arr[j] = arr[j + 1]
+        arr[j + 1] = temp
+      }
+    }
+  }
+  return arr
+}
+```
+
+The above code will run n^2 times. The time complexity of this code is O(n^2).
+
+## Selection sort
+
+```js
+function selectionSort(arr) {
+  for (let i = 0; i < arr.length; i++) {
+    let lowest = i
+    for (let j = i + 1; j < arr.length; j++) {
+      if (arr[j] < arr[lowest]) {
+        lowest = j
+      }
+    }
+    if (i !== lowest) {
+      let temp = arr[i]
+      arr[i] = arr[lowest]
+      arr[lowest] = temp
+    }
+  }
+  return arr
+}
+```
+
+The above code will run n^2 times. The time complexity of this code is O(n^2).
+
+## Insertion sort
+
+```js
+function insertionSort(arr) {
+  for (let i = 1; i < arr.length; i++) {
+    let currentVal = arr[i]
+    for (var j = i - 1; j >= 0 && arr[j] > currentVal; j--) {
+      arr[j + 1] = arr[j]
+    }
+    arr[j + 1] = currentVal
+  }
+  return arr
+}
+```
+
+The above code will run n^2 times. The time complexity of this code is O(n^2).
+
+## Merge sort
+
+```js
+function mergeSort(arr) {
+  if (arr.length <= 1) return arr
+  let mid = Math.floor(arr.length / 2)
+  let left = mergeSort(arr.slice(0, mid))
+  let right = mergeSort(arr.slice(mid))
+  return merge(left, right)
+}
+
+function merge(left, right) {
+  let results = []
+  let i = 0
+  let j = 0
+  while (i < left.length && j < right.length) {
+    if (left[i] < right[j]) {
+      results.push(left[i])
+      i++
+    } else {
+      results.push(right[j])
+      j++
+    }
+  }
+  while (i < left.length) {
+    results.push(left[i])
+    i++
+  }
+  while (j < right.length) {
+    results.push(right[j])
+    j++
+  }
+  return results
+}
+```
+
+The above code will run n log(n) times. The time complexity of this code is O(n log(n)).
+
+## Quick sort
+
+```js
+function pivot(arr, start = 0, end = arr.length + 1) {
+  let pivot = arr[start]
+  let swapIdx = start
+  function swap(array, i, j) {
+    let temp = array[i]
+    array[i] = array[j]
+    array[j] = temp
+  }
+  for (let i = start + 1; i < arr.length; i++) {
+    if (pivot > arr[i]) {
+      swapIdx++
+      swap(arr, swapIdx, i)
+    }
+  }
+  swap(arr, start, swapIdx)
+  return swapIdx
+}
+
+function quickSort(arr, left = 0, right = arr.length - 1) {
+  if (left < right) {
+    let pivotIndex = pivot(arr, left, right)
+    quickSort(arr, left, pivotIndex - 1)
+    quickSort(arr, pivotIndex + 1, right)
+  }
+  return arr
+}
+```
+
+The above code will run n log(n) times. The best case time complexity of quick sort is O(n log(n)) and the worst case time complexity of quick sort is O(n^2) with average case time complexity of O(n log(n)). The space complexity is O(n).
+
+# Common Data Structure Pperations
+
+<table style={{textAlign:"center"}}>
+
+    <tbody><tr>
+      <th>Data Structure</th>
+      <th colspan="8">Time Complexity</th>
+      <th>Space Complexity</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th colspan="4">Average</th>
+      <th colspan="4">Worst</th>
+      <th>Worst</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>Access</th>
+      <th>Search</th>
+      <th>Insertion</th>
+      <th>Deletion</th>
+      <th>Access</th>
+      <th>Search</th>
+      <th>Insertion</th>
+      <th>Deletion</th>
+      <th></th>
+    </tr>
+
+    <tr>
+      <td><a href="http://en.wikipedia.org/wiki/Array_data_structure">Array</a></td>
+      <td><code style={{backgroundColor:"green"}}>Θ(1)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>Θ(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>Θ(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>Θ(n)</code></td>
+      <td><code style={{backgroundColor:"green"}}>O(1)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+    </tr>
+    <tr>
+      <td><a href="http://en.wikipedia.org/wiki/Stack_(abstract_data_type)">Stack</a></td>
+      <td><code style={{ backgroundColor: "yellow"}}>Θ(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>Θ(n)</code></td>
+      <td><code style={{backgroundColor:"green"}}>Θ(1)</code></td>
+      <td><code style={{backgroundColor:"green"}}>Θ(1)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{backgroundColor:"green"}}>O(1)</code></td>
+      <td><code style={{backgroundColor:"green"}}>O(1)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+    </tr>
+    <tr>
+      <td><a href="http://en.wikipedia.org/wiki/Queue_(abstract_data_type)">Queue</a></td>
+      <td><code style={{ backgroundColor: "yellow"}}>Θ(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>Θ(n)</code></td>
+      <td><code style={{backgroundColor:"green"}}>Θ(1)</code></td>
+      <td><code style={{backgroundColor:"green"}}>Θ(1)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{backgroundColor:"green"}}>O(1)</code></td>
+      <td><code style={{backgroundColor:"green"}}>O(1)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+    </tr>
+    <tr>
+      <td><a href="http://en.wikipedia.org/wiki/Singly_linked_list#Singly_linked_lists">Singly-Linked List</a></td>
+      <td><code style={{ backgroundColor: "yellow"}}>Θ(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>Θ(n)</code></td>
+      <td><code style={{backgroundColor:"green"}}>Θ(1)</code></td>
+      <td><code style={{backgroundColor:"green"}}>Θ(1)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{backgroundColor:"green"}}>O(1)</code></td>
+      <td><code style={{backgroundColor:"green"}}>O(1)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+    </tr>
+    <tr>
+      <td><a href="http://en.wikipedia.org/wiki/Doubly_linked_list">Doubly-Linked List</a></td>
+      <td><code style={{ backgroundColor: "yellow"}}>Θ(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>Θ(n)</code></td>
+      <td><code style={{backgroundColor:"green"}}>Θ(1)</code></td>
+      <td><code style={{backgroundColor:"green"}}>Θ(1)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{backgroundColor:"green"}}>O(1)</code></td>
+      <td><code style={{backgroundColor:"green"}}>O(1)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+    </tr>
+    <tr>
+      <td><a href="http://en.wikipedia.org/wiki/Skip_list">Skip List</a></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{backgroundColor:"orange"}}>O(n log(n))</code></td>
+    </tr>
+    <tr>
+      <td><a href="http://en.wikipedia.org/wiki/Hash_table">Hash Table</a></td>
+      <td><code style={{backgroundColor:"grey"}}>N/A</code></td>
+      <td><code style={{backgroundColor:"green"}}>Θ(1)</code></td>
+      <td><code style={{backgroundColor:"green"}}>Θ(1)</code></td>
+      <td><code style={{backgroundColor:"green"}}>Θ(1)</code></td>
+      <td><code style={{backgroundColor:"grey"}}>N/A</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+    </tr>
+    <tr>
+      <td><a href="http://en.wikipedia.org/wiki/Binary_search_tree">Binary Search Tree</a></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://en.wikipedia.org/wiki/Cartesian_tree">Cartesian Tree</a></td>
+      <td><code style={{backgroundColor:"grey"}}>N/A</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{backgroundColor:"grey"}}>N/A</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+    </tr>
+    <tr>
+      <td><a href="http://en.wikipedia.org/wiki/B_tree">B-Tree</a></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+    </tr>
+    <tr>
+      <td><a href="http://en.wikipedia.org/wiki/Red-black_tree">Red-Black Tree</a></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://en.wikipedia.org/wiki/Splay_tree">Splay Tree</a></td>
+      <td><code style={{backgroundColor:"grey"}}>N/A</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{backgroundColor:"grey"}}>N/A</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+    </tr>
+    <tr>
+      <td><a href="http://en.wikipedia.org/wiki/AVL_tree">AVL Tree</a></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>O(log(n))</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+    </tr>
+    <tr>
+      <td><a href="http://en.wikipedia.org/wiki/K-d_tree">KD Tree</a></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "greenyellow"}}>Θ(log(n))</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+      <td><code style={{ backgroundColor: "yellow"}}>O(n)</code></td>
+    </tr>
+
+</tbody></table>
+
+# Tips for Big O
+
+- Arithmetic operations are constant
+- Variable assignment is constant
+- Accessing elements in an array (by index) or object (by key) is constant
+- In a loop, the complexity is the length of the loop times the complexity of whatever happens inside of the loop
+
+# Resources
+
+- [Big O Cheat Sheet](https://www.bigocheatsheet.com/)
+- [Big O Notation](https://www.interviewcake.com/article/javascript/big-o-notation-time-and-space-complexity)
+- [Big O Notation](https://www.freecodecamp.org/news/big-o-notation-time-and-space-complexity-explained-with-examples-1f6e26a13a6e/)
