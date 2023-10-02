@@ -1,0 +1,85 @@
+---
+title: 'How to Deploy Next.js Standalone with Bun and Docker?'
+date: '2023-10-01'
+lastmod: '2023-10-01'
+tags: ['next-js', 'bun', 'docker', 'deployment', 'standalone']
+draft: false
+summary: 'How to deploy Next.js standalone with Bun and Docker?'
+---
+
+## Backstory
+
+When I hear the news about Bun released its stable version 1 and Vercel officially supported Bun as package manager (not runtime yet, still using node).
+I wonder, how to mimic the Vercel deployment process locally? Or to be precise, how to deploy Next.js as standalone with Bun and Docker?
+
+## First Attempt
+
+I setup a new `dockerfile` to mimic the Vercel deployment process using `oven/bun:slim`, but it failed. I got some error I forgot what it was.
+But it has prefix `node:`, so I expect it as bun's not yet implemented node features.
+
+## The Final Attempt
+
+Here's full `dockerfile` I use to deploy Next.js standalone with Bun and Docker.
+
+```dockerfile
+FROM imbios/bun-node:18-slim AS deps
+ARG DEBIAN_FRONTEND=noninteractive
+
+# I use Asia/Jakarta as my timezone, you can change it to your timezone
+RUN apt-get -y update && \
+  apt-get install -yq openssl git ca-certificates tzdata && \
+  ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime && \
+  dpkg-reconfigure -f noninteractive tzdata
+WORKDIR /app
+
+# Install dependencies based on the preferred package manager
+COPY package.json bun.lockb ./
+RUN bun install --frozen-lockfile
+
+# Build the app
+FROM deps AS builder
+WORKDIR /app
+COPY . .
+
+RUN bun run build
+
+
+# Production image, copy all the files and run next
+FROM node:18-slim AS runner
+WORKDIR /app
+
+ARG CONFIG_FILE
+COPY $CONFIG_FILE /app/.env
+ENV NODE_ENV production
+# Uncomment the following line in case you want to disable telemetry during runtime.
+# ENV NEXT_TELEMETRY_DISABLED 1
+
+COPY --from=builder  /app/.next/standalone ./
+
+EXPOSE 3001
+
+ENV PORT 3001
+
+CMD ["node", "server.js"]
+```
+
+Because I just want to try it locally, I changed the behaviour of `bun run build` to run custom shell script `./build.sh`:
+
+```build.sh
+#!/bin/bash
+set -e
+
+# Run Next.js build with passed arguments
+next build "$@"
+
+# Copy files only if not in a CI environment
+if [ -z "$CI" ]; then
+  cp -r ./public ./.next/standalone/public
+  cp -r ./.next/static ./.next/standalone/.next/static
+fi
+```
+
+## New Docker image
+
+I also create a new Docker image based on `oven/bun` with `node` installed. You can check it out [in the docker hub](https://hub.docker.com/r/imbios/bun-node).
+Or in the [Github repository](https://github.com/ImBIOS/bun-node).
