@@ -1,25 +1,27 @@
 ---
-title: 'How to Deploy Next.js Standalone with Bun and Docker?'
+title: 'Complete Guide to Deploying Next.js Standalone with Bun and Docker'
 date: '2023-10-01'
 lastmod: '2023-10-01'
 tags: ['next-js', 'bun', 'docker', 'deployment', 'standalone']
 draft: false
-summary: 'How to deploy Next.js standalone with Bun and Docker?'
+summary: 'Learn to deploy a Next.js standalone application using Bun and Docker as if you were deploying with Vercel. This guide includes a step-by-step walkthrough, tackling common errors, and more.'
 ---
 
-## Backstory
+## Why Deploy Next.js with Bun and Docker?
 
-When I hear the news about Bun released its stable version 1 and Vercel officially supported Bun as package manager (not runtime yet, still using node).
-I wonder, how to mimic the Vercel deployment process locally? Or to be precise, how to deploy Next.js as standalone with Bun and Docker?
+When Bun hit its stable version 1 and Vercel started supporting it as a package manager (though still relying on Node for runtime), I was intrigued. How could you simulate the Vercel deployment process locally? Specifically, how can you deploy a Next.js standalone app with Bun and Docker? This guide aims to answer these questions.
 
-## First Attempt
+### Prerequisites
 
-I setup a new `dockerfile` to mimic the Vercel deployment process using `oven/bun:slim`, but it failed. I got some error I forgot what it was.
-But it has prefix `node:`, so I expect it as bun's not yet implemented node features.
+- Basic understanding of Docker, Next.js, and Bun
+- Node.js installed
+- Bun package manager installed
 
-## The Final Attempt
+## Step-by-Step Guide
 
-Here's full `dockerfile` I use to deploy Next.js standalone with Bun and Docker.
+### Step 1: Setting Up Dockerfile
+
+Here's the full `dockerfile` you'll need.
 
 ```dockerfile
 FROM imbios/bun-node:18-slim AS deps
@@ -63,7 +65,9 @@ ENV PORT 3001
 CMD ["node", "server.js"]
 ```
 
-Because I just want to try it locally, I changed the behaviour of `bun run build` to run custom shell script `./build.sh`:
+### Step 2: Custom Shell Script
+
+Create a custom shell script ./build.sh.
 
 ```build.sh
 #!/bin/bash
@@ -79,7 +83,14 @@ if [ -z "$CI" ]; then
 fi
 ```
 
-## New Docker image
+## Common Errors and Troubleshooting
 
-I also create a new Docker image based on `oven/bun` with `node` installed. You can check it out [in the docker hub](https://hub.docker.com/r/imbios/bun-node).
-Or in the [Github repository](https://github.com/ImBIOS/bun-node).
+I ran into some issues during my first attempt, especially errors prefixed with node:. I fixed them by using `imbios/bun-node` instad of `oven/bun` as the base image. Becase we need Node.js fallback for Bun's not yet implemented features.
+
+## Conclusion
+
+By following this guide, you should have a Next.js app deployed, mimicking the Vercel deployment process, with Bun and Docker. Feel free to tweak and optimize the setup according to your project's needs.
+
+## What's Next?
+
+Share this guide if you found it useful and leave a comment if you have any questions or improvements. Stay tuned for more!
